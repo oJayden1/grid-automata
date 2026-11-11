@@ -1,0 +1,32 @@
+{
+  "name": "grid-automata",
+  "version": "0.1.0",
+  "description": "High-performance 2D chunk-based grid and cellular automata simulation engine (sand, water, lava) in TypeScript",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "verify": "tsx src/benchmark/headless-verify.ts",
+    "benchmark": "tsx src/benchmark/headless-verify.ts --benchmark"
+  },
+  "keywords": [
+    "cellular-automata",
+    "falling-sand",
+    "grid",
+    "chunks",
+    "simulation",
+    "water",
+    "sand",
+    "lava"
+  ],
+  "author": "Jayden Sylvain",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
