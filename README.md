@@ -28,6 +28,13 @@ A high-performance, modular 2D chunk-based grid and cellular automata simulation
     - **Volcanic Quenching:** Contact between Water and Lava vaporizes Water into rising Steam and cools Lava into Stone (or Obsidian under pressure).
     - **Steam (Gas):** Rises upward against gravity, drifts sideways, and dissipates after a configurable lifetime.
 
+- **NPC Utility AI, Decision Trees & Entity FSM:**
+  - **Entity Finite State Machine (FSM):** Structured states (`IDLE`, `WANDER`, `GATHER`, `FLEE`, `REST`) with deterministic lifecycle hooks (`onEnter`, `onUpdate`, `onExit`) and state duration tracking.
+  - **Utility AI (Multi-Objective Task Selection):** Normalized response curves (`linear`, `quadratic`, `inverse`, `logistic`) with commitment hysteresis multipliers to prevent goal-thrashing.
+  - **Tactical Decision Trees:** Hierarchical branching logic (`DecisionNode`, `ActionNode`) evaluating moment-to-moment tactical actions (path execution, direct harvesting, resting).
+  - **Terrain-Aware A* Pathfinding:** Navigates 2D terrain with footing validation, 1-block step-ups, and active hazard avoidance (routing around or leaping over lava pits).
+  - **Continuous 100-Tick Simulation:** Complete simulation tests validating dynamic task picking, fatigue/rest cycles, energy consumption, and hazard evasion.
+
 - **Double-Buffering & Bottom-to-Top Updates:**
   - Bottom-to-top scan order (`y` from maxY to minY) eliminates multi-cell teleportation artifacts.
   - Per-cell update tags ensure particles are never stepped multiple times in a single tick.

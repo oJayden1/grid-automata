@@ -1,5 +1,5 @@
 /**
- * Grid Automata - 2D Chunk-based cellular automata simulation engine
+ * Grid Automata & Entity FSM - 2D Chunk-based cellular automata & AI simulation engine
  */
 
 export * from './core/types.js';
@@ -12,3 +12,12 @@ export * from './rules/sand.js';
 export * from './rules/water.js';
 export * from './rules/lava.js';
 export * from './rules/reactions.js';
+
+export * from './ai/fsm.js';
+export * from './ai/utility.js';
+export * from './ai/decision-tree.js';
+export * from './ai/pathfinding.js';
+export * from './ai/npc-brain.js';
+
+export * from './entities/entity.js';
+export * from './entities/npc.js';

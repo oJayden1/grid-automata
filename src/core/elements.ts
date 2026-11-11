@@ -2,7 +2,7 @@
  * Element definitions and physical properties for the cellular automata engine.
  */
 
-export const enum ElementId {
+export enum ElementId {
   EMPTY = 0,
   SOLID = 1,
   SAND = 2,
