@@ -5,18 +5,44 @@ import { WaterRule } from '../rules/water.js';
 import { LavaRule } from '../rules/lava.js';
 import { ReactionHandler } from '../rules/reactions.js';
 import { DEFAULT_CONFIG, SimulationConfig, TickStats } from './types.js';
+import { Entity } from '../entities/entity.js';
 
 /**
- * High-performance cellular automata simulation engine for chunk-based grids.
+ * High-performance cellular automata and entity simulation engine for chunk-based grids.
  */
 export class Simulator {
   public readonly grid: ChunkGrid;
   public readonly config: SimulationConfig;
   public currentTick: number = 0;
+  private readonly entities: Map<string, Entity> = new Map();
 
   constructor(grid?: ChunkGrid, config: Partial<SimulationConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.grid = grid ?? new ChunkGrid(this.config);
+  }
+
+  public addEntity(entity: Entity): this {
+    this.entities.set(entity.id, entity);
+    const cx = Math.floor(entity.x / this.grid.chunkSize);
+    const cy = Math.floor(entity.y / this.grid.chunkSize);
+    this.grid.getOrCreateChunk(cx, cy).wakeUp();
+    return this;
+  }
+
+  public removeEntity(id: string): boolean {
+    return this.entities.delete(id);
+  }
+
+  public getEntity<T extends Entity = Entity>(id: string): T | undefined {
+    return this.entities.get(id) as T | undefined;
+  }
+
+  public getEntities<T extends Entity = Entity>(): T[] {
+    return Array.from(this.entities.values()) as T[];
+  }
+
+  public clearEntities(): void {
+    this.entities.clear();
   }
 
   /**
@@ -79,6 +105,35 @@ export class Simulator {
       }
     }
 
+    // 2. Entity Simulation Phase
+    let entitiesUpdated = 0;
+    let livingEntities = 0;
+
+    for (const entity of this.entities.values()) {
+      if (!entity.isAlive) continue;
+      livingEntities++;
+
+      // If entity provides autonomous tick method (e.g. NPC), invoke its AI & movement loop
+      if (typeof (entity as any).tick === 'function') {
+        (entity as any).tick(this.grid, tick);
+      } else {
+        this.updateBaseEntity(entity);
+      }
+
+      // Check environmental reactions (lava thermal damage, water, etc.)
+      this.applyEnvironmentalEffects(entity);
+
+      // Ensure chunk at entity location remains active
+      const cx = Math.floor(entity.x / chunkSize);
+      const cy = Math.floor(entity.y / chunkSize);
+      const chunk = this.grid.getChunk(cx, cy, false);
+      if (chunk && !chunk.isActive) {
+        chunk.wakeUp();
+      }
+
+      entitiesUpdated++;
+    }
+
     const durationMs = performance.now() - startTime;
 
     return {
@@ -88,7 +143,28 @@ export class Simulator {
       totalChunks: this.grid.getChunkCount(),
       particlesMoved: totalParticlesMoved,
       reactionsTriggered: totalReactions,
+      entityCount: this.entities.size,
+      livingEntities,
+      entitiesUpdated,
     };
+  }
+
+  private updateBaseEntity(entity: Entity): void {
+    // Basic environmental gravity if standing on empty air
+    const below = this.grid.getCell(entity.x, entity.y + 1);
+    if (below === ElementId.EMPTY || below === ElementId.STEAM) {
+      entity.y += 1;
+    }
+  }
+
+  private applyEnvironmentalEffects(entity: Entity): void {
+    const currentCell = this.grid.getCell(entity.x, entity.y);
+    const belowCell = this.grid.getCell(entity.x, entity.y + 1);
+
+    // Thermal damage from lava contact
+    if (currentCell === ElementId.LAVA || belowCell === ElementId.LAVA) {
+      entity.takeDamage(20);
+    }
   }
 
   private updateCell(

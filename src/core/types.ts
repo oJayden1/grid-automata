@@ -43,6 +43,9 @@ export interface TickStats {
   totalChunks: number;
   particlesMoved: number;
   reactionsTriggered: number;
+  entityCount?: number;
+  livingEntities?: number;
+  entitiesUpdated?: number;
 }
 
 export type CellSwapFn = (x1: number, y1: number, x2: number, y2: number) => boolean;
