@@ -21,3 +21,10 @@ export * from './ai/npc-brain.js';
 
 export * from './entities/entity.js';
 export * from './entities/npc.js';
+
+export * from './game/types.js';
+export * from './game/player.js';
+export * from './game/world-generator.js';
+export * from './game/game-world.js';
+export * from './game/storage.js';
+

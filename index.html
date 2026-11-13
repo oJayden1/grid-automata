@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grid Automata — Hybrid Sandbox &amp; Survivor</title>
+    <link rel="stylesheet" href="/src/game/styles.css" />
+  </head>
+  <body>
+    <div id="game-root">
+      <canvas id="game-canvas" aria-label="Grid Automata simulation viewport"></canvas>
+
+      <!-- Top HUD -->
+      <div class="hud-top">
+        <div class="hud-group">
+          <div class="hud-panel vitals-card">
+            <div class="vital-meter">
+              <div class="vital-header">
+                <span>Health</span>
+                <span id="hp-value">100/100</span>
+              </div>
+              <div class="vital-track">
+                <div id="hp-fill" class="vital-fill hp" style="width: 100%"></div>
+              </div>
+            </div>
+            <div class="vital-meter">
+              <div class="vital-header">
+                <span>Energy</span>
+                <span id="energy-value">100/100</span>
+              </div>
+              <div class="vital-track">
+                <div id="energy-fill" class="vital-fill energy" style="width: 100%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hud-panel mode-switch" role="group" aria-label="Game mode">
+            <button id="mode-survivor" class="btn active" type="button">Survivor</button>
+            <button id="mode-sandbox" class="btn" type="button">Sandbox Brush</button>
+          </div>
+
+          <div class="hud-panel telemetry-chip" aria-live="polite">
+            <span>Tick <strong id="stat-tick">0</strong></span>
+            <span>Chunks <strong id="stat-chunks">0/0</strong></span>
+            <span>NPCs <strong id="stat-npcs">0</strong></span>
+            <span>TPS <strong id="stat-tps">0</strong></span>
+          </div>
+        </div>
+
+        <div class="hud-group">
+          <div class="hud-panel controls-bar">
+            <button id="btn-pause" class="btn" type="button" title="Pause / Resume (P)">Pause</button>
+            <button id="btn-step" class="btn" type="button" title="Single Step (.)">Step</button>
+            <button id="btn-speed" class="btn" type="button" title="Simulation Speed">1x</button>
+            <div class="divider"></div>
+            <button id="btn-chunks" class="btn" type="button" title="Toggle Chunk Sleep Grid (G)">Chunks</button>
+            <button id="btn-ai" class="btn" type="button" title="Toggle AI Inspector & Paths (I)">AI</button>
+            <button id="btn-center" class="btn" type="button" title="Center Camera on Player (C)">Center</button>
+            <div class="divider"></div>
+            <button id="btn-save" class="btn" type="button" title="Save World to Browser Storage">Save</button>
+            <button id="btn-load" class="btn" type="button" title="Load Saved World">Load</button>
+            <select id="preset-select" class="preset-select" aria-label="World preset">
+              <option value="caverns">Volcanic Caverns</option>
+              <option value="oasis">Desert Oasis</option>
+              <option value="flat">Flat Sandbox</option>
+            </select>
+            <button id="btn-new-world" class="btn" type="button" title="Generate New World">New World</button>
+            <button id="btn-help" class="btn" type="button" title="Controls & Help (H)">?</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast notification -->
+      <div id="toast" class="hud-panel toast" role="status"></div>
+
+      <!-- Right Collapsible AI Inspector -->
+      <aside id="inspector-panel" class="hud-panel inspector-panel hidden" aria-label="NPC AI Inspector">
+        <div class="panel-header">
+          <span>NPC AI Inspector</span>
+          <button id="btn-spawn-npc" class="btn btn-outline" type="button">+ Spawn NPC</button>
+        </div>
+        <div id="npc-list" class="npc-list"></div>
+        <div id="npc-detail" class="kv-grid"></div>
+      </aside>
+
+      <!-- Bottom Hotbar / Brush Dock -->
+      <div class="hud-bottom">
+        <div id="hotbar" class="hud-panel hotbar"></div>
+        <div id="hint-strip" class="hint-strip"></div>
+      </div>
+
+      <!-- Respawn Overlay -->
+      <div id="death-modal" class="modal-backdrop hidden">
+        <div class="hud-panel modal-card">
+          <h2>Survivor Down</h2>
+          <p id="death-summary">You succumbed to molten lava. Your world and NPCs are still running.</p>
+          <div style="display: flex; gap: 8px; justify-content: flex-end;">
+            <button id="btn-switch-sandbox" class="btn btn-outline" type="button">Switch to Sandbox</button>
+            <button id="btn-respawn" class="btn active" type="button">Respawn at Camp (R)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls Help Modal -->
+      <div id="help-modal" class="modal-backdrop hidden">
+        <div class="hud-panel modal-card">
+          <div class="panel-header">
+            <h2>Controls &amp; Engine Guide</h2>
+            <button id="btn-close-help" class="btn" type="button">Close</button>
+          </div>
+          <div class="controls-table">
+            <span class="kbd">A / D or ← / →</span><span>Move survivor (or pan camera in Sandbox mode)</span>
+            <span class="kbd">W / Space / ↑</span><span>Jump or swim upward (pan up in Sandbox mode)</span>
+            <span class="kbd">Left Click</span><span>Mine block into inventory (Survivor) / Paint tool (Sandbox)</span>
+            <span class="kbd">Right Click</span><span>Place selected inventory item (Survivor) / Erase (Sandbox)</span>
+            <span class="kbd">Tab</span><span>Toggle Survivor ↔ Sandbox Brush mode</span>
+            <span class="kbd">1 – 9</span><span>Select inventory slot or Sandbox brush</span>
+            <span class="kbd">[ / ]</span><span>Decrease / Increase Sandbox brush radius</span>
+            <span class="kbd">Wheel / Shift+Drag</span><span>Zoom viewport / Pan camera freely</span>
+            <span class="kbd">G / I / C</span><span>Toggle Chunk Sleep Grid / AI Paths / Center Camera</span>
+            <span class="kbd">P / .</span><span>Pause simulation / Single-step 1 tick</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/game/app.ts"></script>
+  </body>
+</html>
