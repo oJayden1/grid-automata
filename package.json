@@ -6,7 +6,11 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "dev": "vite",
     "build": "tsc",
+    "build:web": "vite build",
+    "preview": "vite preview",
+    "check": "tsc --noEmit",
     "test": "vitest run",
     "verify": "tsx src/benchmark/headless-verify.ts",
     "benchmark": "tsx src/benchmark/headless-verify.ts --benchmark"
@@ -27,6 +31,7 @@
     "@types/node": "^22.10.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
+    "vite": "^5.4.21",
     "vitest": "^2.1.8"
   }
 }

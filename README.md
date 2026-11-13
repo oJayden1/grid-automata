@@ -35,6 +35,11 @@ A high-performance, modular 2D chunk-based grid and cellular automata simulation
   - **Terrain-Aware A* Pathfinding:** Navigates 2D terrain with footing validation, 1-block step-ups, and active hazard avoidance (routing around or leaping over lava pits).
   - **Continuous 100-Tick Simulation:** Complete simulation tests validating dynamic task picking, fatigue/rest cycles, energy consumption, and hazard evasion.
 
+- **Playable Hybrid Sandbox + Survivor Web App (`src/game/`):**
+  - **Survivor Mode:** Playable character with WASD/Arrow movement, 1-block step-up, jumping, water swimming, mining into inventory, and block/water placement within reach.
+  - **Sandbox Brush Mode:** Circular material brush (`Sand`, `Water`, `Lava`, `Stone`, `Obsidian`, `Steam`, `Bedrock`, `Erase`), autonomous NPC spawner, brush radius controls, pause/step/speed controls.
+  - **High-Speed Pixel Renderer:** Offscreen `Uint32Array` `ImageData` buffer rendered crisp at 60 FPS with camera pan/zoom, chunk sleep grid overlay, live NPC AI path/FSM inspector, procedural world presets (`Volcanic Caverns`, `Desert Oasis`, `Flat Sandbox`), and RLE `localStorage` save/load.
+
 - **Double-Buffering & Bottom-to-Top Updates:**
   - Bottom-to-top scan order (`y` from maxY to minY) eliminates multi-cell teleportation artifacts.
   - Per-cell update tags ensure particles are never stepped multiple times in a single tick.
@@ -43,6 +48,8 @@ A high-performance, modular 2D chunk-based grid and cellular automata simulation
 
 ```
 grid-automata/
+├── index.html                 # Vite browser entrypoint
+├── vite.config.ts             # Vite build/dev configuration
 ├── src/
 │   ├── index.ts               # Public library entrypoint
 │   ├── core/
@@ -56,16 +63,27 @@ grid-automata/
 │   │   ├── water.ts           # Liquid gravity and lateral dispersion
 │   │   ├── lava.ts            # Viscous fluid dynamics and oozing
 │   │   └── reactions.ts       # Thermal quench and gas rising/dissipation
+│   ├── ai/
+│   │   ├── fsm.ts             # Entity Finite State Machine
+│   │   ├── utility.ts         # Utility AI response curves and task selector
+│   │   ├── decision-tree.ts   # Tactical decision trees
+│   │   ├── pathfinding.ts     # Terrain-aware A* pathfinding
+│   │   └── npc-brain.ts       # Unified NPC perception & cognition
+│   ├── entities/
+│   │   ├── entity.ts          # Base world entity (health, energy, inventory)
+│   │   └── npc.ts             # Autonomous NPC agent
+│   ├── game/
+│   │   ├── types.ts           # Playable game mode, bounds, and state types
+│   │   ├── player.ts          # Playable Survivor controller & physics
+│   │   ├── world-generator.ts # Seeded procedural world presets
+│   │   ├── game-world.ts      # Unified game coordinator & brush tools
+│   │   ├── storage.ts         # RLE world serialization for save/load
+│   │   ├── renderer.ts        # ImageData pixel renderer & debug overlays
+│   │   ├── app.ts             # Browser game loop, input, and HUD controller
+│   │   └── styles.css         # HUD & overlay styles
 │   └── benchmark/
 │       └── headless-verify.ts # Headless performance and stability benchmark
-└── tests/
-    ├── chunk.test.ts          # Chunk unit tests
-    ├── grid.test.ts           # Grid coordinate and boundary tests
-    ├── sand.test.ts           # Sand gravity and fluid displacement tests
-    ├── water.test.ts          # Water leveling and barrier tests
-    ├── lava.test.ts           # Lava viscosity tests
-    ├── reactions.test.ts      # Water + Lava quench and steam tests
-    └── performance.test.ts    # Sleep optimization and latency tests
+└── tests/                     # Vitest unit and integration suites (60 tests)
 ```
 
 ## Getting Started
@@ -76,9 +94,15 @@ grid-automata/
 npm install
 ```
 
-### Running Unit Tests
+### Launching the Playable Game
 
-Run the full Vitest suite (30 comprehensive unit tests):
+```bash
+npm run dev
+```
+
+### Running Unit & Integration Tests
+
+Run the full Vitest suite (60 unit and integration tests across 16 suites):
 
 ```bash
 npm test
@@ -95,7 +119,8 @@ npm run verify
 ### Building Distribution Assets
 
 ```bash
-npm run build
+npm run build      # TypeScript library -> dist/
+npm run build:web  # Vite browser bundle -> dist-web/
 ```
 
 ## Headless Benchmark Performance
